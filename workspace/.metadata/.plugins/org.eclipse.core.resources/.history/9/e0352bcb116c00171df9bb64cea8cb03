@@ -1,0 +1,31 @@
+package bori;
+
+import java.util.Scanner;
+
+class OneScore {
+	static final int SPARE = 1;
+	static final int STRIKE = 2;
+
+	int first;	 // 1投目スコア
+	int second; // 2投目スコア
+
+}
+
+public class Bori {
+	public static int getMaxMinDiff(int strike, int spare) {
+
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int strike, spare;
+
+		while (cin.hasNext()) {
+			strike = cin.nextInt();
+			spare = cin.nextInt();
+			System.out.println(getMaxMinDiff(strike, spare));
+		}
+		cin.close();
+	}
+
+}

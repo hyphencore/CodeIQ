@@ -1,0 +1,103 @@
+package roomroof;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.Scanner;
+
+class Ret {
+	BigDecimal a;
+	BigDecimal b;
+
+	Ret() {
+		a = null;
+		b = null;
+	}
+
+	Ret(BigDecimal asrc, BigDecimal bsrc) {
+		set(asrc, bsrc);
+	}
+
+	void set(BigDecimal asrc, BigDecimal bsrc) {
+		a = asrc;
+		b = bsrc;
+	}
+}
+
+public class RoomRoof {
+	/*
+	 * 【処理概要】
+	 * 題より、P(n) = (2 + √3)^n * 1 で面積が求められる。
+	 *  したがって、言い換えれば、P(n)の整数部をA(n)、実数部√3の係数をB(n)とすると
+	 *    P(n) = A(n) + B(n)*√3　 で表現でき、2+√3をかけて展開すると、
+	 *     A(n) = 2*A(n-1) + 3*B(n-1)
+	 *     B(n) = A(n-1) + 2*B(n-1)
+	 *    で各係数を求められる。
+	 *    よって、　A(0) = 1, B(0) = 0　を初期値とする漸化式でA(n)とB(n)を求める。
+	 */
+	public static Ret calc(int n) {
+		BigDecimal a = new BigDecimal(1);
+		BigDecimal b = new BigDecimal(0);
+		BigDecimal const2 = new BigDecimal(2);
+		BigDecimal const3 = new BigDecimal(3);
+		BigDecimal tmp;
+		Ret ret = new Ret();
+		int i;
+
+		for (i=1 ; i<=n ;i++) {
+			tmp = a.multiply(const2).add(b.multiply(const3)); // A(n) = 2*A(n-1) + 3*B(n-1)
+			b = a.add(b.multiply(const2));	// B(n) = A(n-1) + 2*B(n-1)
+			a = tmp;
+		}
+		ret.a = a;
+		ret.b = b;
+		return ret;
+	}
+
+	/*
+	 * calcArea(n): P(n)を求め、その結果のmod100万をもとめる
+	 */
+	public static int calcArea(int n) {
+		Ret ret1; // A(0)=1, B(0)=0
+		BigDecimal const3 = new BigDecimal(3);
+		BigDecimal const1000000 = new BigDecimal(1000000);
+		BigDecimal sqrt3, ret;
+		MathContext mc = new MathContext(0, RoundingMode.DOWN);
+		if (n == 0) return 1;
+		ret1 = calc(n); // a + b√3　の形式でP(n)の計算結果を求める
+		sqrt3 = sqrtBD(const3,ret1.b.toPlainString().length()+2); // bの整数桁分だけ√3の精度が必要
+		ret = ret1.a.add(ret1.b.multiply(sqrt3)).round(mc).remainder(const1000000);	// INT(a + b√3) mod 100万
+
+		return ret.intValue();
+	}
+
+	// BigDecimal sqrt
+	// newton法で平方根を求める。x{n+1} = x{n} - f{x}/F'{x}
+	public static BigDecimal sqrtBD(BigDecimal base, int scale){
+		BigDecimal b = new BigDecimal(Math.sqrt(base.doubleValue()), MathContext.DECIMAL64);
+		BigDecimal b2 = new BigDecimal(2);
+        int i;
+
+        if(scale < 17) return b;	// doubleゆえにまんま返す
+        for(i = 16; i < scale; i *= 2){
+        	// f{x} = x^2 - base, f'{x] = 2x ===> x{n+1} = x{n} - (x^2-base)/2x
+            b = b.subtract(b.multiply(b).subtract(base).divide(
+                    b.multiply(b2), scale, BigDecimal.ROUND_HALF_EVEN));
+        }
+        return b;
+    }
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int n;
+		String line;
+
+		while (cin.hasNext()) {
+			line = cin.nextLine();
+			n = Integer.parseInt(line);
+			System.out.println(calcArea(n));
+		}
+		cin.close();
+	}
+
+}

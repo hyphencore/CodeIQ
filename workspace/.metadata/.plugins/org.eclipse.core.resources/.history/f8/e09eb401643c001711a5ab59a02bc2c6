@@ -1,0 +1,29 @@
+package rev3;
+
+import java.util.Scanner;
+
+public class Rev3 {
+
+	public static void initBase(int n, int[] baseList) {
+		for (int i=0 ; i<n ; i++) {
+			baseList[i] = i+1;
+		}
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int n;
+		int[] baseList;
+
+		while (cin.hasNext()) {
+			n = cin.nextInt();
+			baseList = new int[n];
+			initBase(n, baseList);
+			do {
+
+			} while (true);
+		}
+		cin.close();
+	}
+
+}

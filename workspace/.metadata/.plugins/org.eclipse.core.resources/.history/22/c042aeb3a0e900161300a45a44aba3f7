@@ -1,0 +1,415 @@
+package roomroof;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// 巨大整数の表現クラス。今後巨大な整数が出現した際には再利用可能。
+class BigInteger implements Cloneable {
+	ArrayList<Integer> keta;		// 1の位から係数保持する配列。添え字0が1の位
+
+	BigInteger() {
+		keta = new ArrayList<Integer>();	//　default constructor
+	}
+
+	BigInteger(int src) {
+		keta = new ArrayList<Integer>();	// int constructor
+		set(src);
+	}
+
+	BigInteger(BigInteger src) {			// BigInteger constructor
+		keta = new ArrayList<Integer>();
+	}
+
+	// 指定整数をBigInteger形式にしてセット。
+	void set(int src) {
+		int jyo=src, amari;
+
+		keta.clear();
+		if (jyo == 0) keta.add(0);
+		else {
+			while (jyo > 0) {
+				amari = jyo % 10;
+				keta.add(amari);
+				jyo = (int)Math.floor(jyo / 10);
+			}
+		}
+	}
+
+	// BigIntegerをセット
+	void set(BigInteger src) {
+		copy(src);
+	}
+
+	// BigIntegerをコピー
+	void copy(BigInteger src) {
+		set(0);
+		add(src);
+	}
+
+	// 先頭0を詰める
+	void compaction() {
+		int i;
+
+		for (i=keta.size()-1 ; i>=0 ; i--) {
+			if (keta.get(i) == 0) {
+				keta.remove(i);
+			} else break;
+		}
+	}
+
+	// cloneableインタフェースの実装（Override）
+	@Override
+	public BigInteger clone() {
+		BigInteger ret = null;
+		try {
+			ret = (BigInteger)super.clone();
+			ret.keta = new ArrayList<Integer>();	// super.clone() では内部変数配列までコピーされないため生成
+			ret.copy(this);
+		} catch (CloneNotSupportedException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	// 各桁の繰り上げを加味して、各桁を10未満に整地
+	void kuriage() {
+		int i, tmp;
+
+		if (keta.get(keta.size()-1) >= 10) keta.add(0); // 最上位桁の繰り上がり
+		for (i=0 ; i<keta.size() ; i++) {
+			tmp = keta.get(i);
+			if (tmp >= 10) {
+				keta.set(i, tmp%10);
+				keta.set(i+1, keta.get(i+1) + (int)Math.floor(tmp/10));
+			}
+		}
+	}
+
+	// BigInteger形式での加算
+	void add(BigInteger src) {
+		int i, addSize;
+
+		// 不足桁の追加
+		addSize = src.keta.size() - this.keta.size();
+		for (i=0 ; i<addSize ; i++) this.keta.add(0);
+		for (i=0 ; i<src.keta.size() ; i++) {
+			keta.set(i, keta.get(i) + src.keta.get(i));
+		}
+		kuriage();
+	}
+
+	// BigInteger形式に、整数1桁をかける処理。その際、乗算手計算の処理を実現するために、開始桁数を指定する。
+	// this に計算結果をセットする(上書き)
+	void mult1(int src1keta, int dstKeta) {
+		int i, needKeta;
+		BigInteger tmp; // かけられる数
+
+		tmp = this.clone();
+		this.set(0);
+		for (i=0 ; i<tmp.keta.size()+dstKeta+1 ; i++) keta.add(0);
+		for (i=0 ; i<tmp.keta.size() ; i++) {
+			keta.set(i+dstKeta, tmp.keta.get(i) * src1keta);
+		}
+		kuriage();
+	}
+
+	// BigInteger形式での乗算
+	void mult(BigInteger src) {
+		int i;
+		BigInteger tmp, ret;
+
+		tmp = this.clone();	//　掛けられる数の保持
+		ret = new BigInteger(0); // 計算結果tmp
+		for (i=0 ; i<src.keta.size() ; i++) {
+			tmp.set(this); // 掛けられる数のセット
+			tmp.mult1(src.keta.get(i), i);
+			ret.add(tmp);
+		}
+		set(ret);
+		kuriage();
+		compaction();
+	}
+
+	// int形式での乗算。内部的にはBigIntegerに変換してCall
+	void mult(int src) {
+		BigInteger tmp = new BigInteger(src);
+		mult(tmp);
+	}
+
+	void print() {
+		print(0, keta.size()-1);
+	}
+
+	// str >= end
+	// strが下位ケタ
+	void print(int str, int end) {
+		int i;
+
+		for (i=end ; i>=str ; i--) {
+			System.out.print(keta.get(i));
+		}
+	}
+
+	void println() {
+		println(0, keta.size()-1);
+	}
+
+	// str >= end
+	// strが下位ケタ
+	void println(int str, int end) {
+		int i;
+
+		for (i=end ; i>=str ; i--) {
+			System.out.print(keta.get(i));
+		}
+		System.out.println("");
+	}
+
+}
+
+// 実数（平方根と係数）表現 c√r
+class Root {
+	int c;
+	int r;
+
+	// constructor
+	Root(int coef, int rt) {
+		c = coef;
+		r = rt;
+	}
+
+	// 平方根最適化。素因数分解の処理。
+	void reconst() {
+		int i, end = (int)Math.sqrt(this.r);
+		int rPart = this.r;
+		int cTmp=1, rTmp=0, count=0;
+
+		while ((rPart % 2) == 0) {
+			rPart = rPart / 2;
+			count++;
+			if ((count % 2) == 0) {
+				cTmp = cTmp * 2;
+				rTmp = 0;
+				count = 0;
+			} else {
+				rTmp = 2;
+			}
+		}
+
+		for (i=3 ; i<=end ; i+=2) {
+			count = 0;
+			while (((rPart % i) == 0) && (rPart > i)) {
+				rPart = rPart / i;
+				count++;
+				if ((count % 2) == 0) {
+					cTmp = cTmp * i;
+					rTmp = 0;
+				} else {
+					rTmp = i;
+				}
+			}
+		}
+		this.c = cTmp;
+		this.r = rTmp;
+	}
+
+	// 平方根同士の掛け算
+	void Mult(Root r1, Root r2) {
+		this.c = r1.c * r2.c;
+		this.r = r1.r * r2.r;
+		this.reconst();
+	}
+}
+/*
+class Real {
+	double intPart;
+	double rootPart;
+
+	Real(double ip, double rp) {
+		intPart = ip;
+		rootPart = rp;
+	}
+
+	// 100万のあまり（引く）にする。
+	void reconst(int jyosuu) {
+		if ((intPart >= jyosuu) && (rootPart >= jyosuu)) {
+			intPart %= jyosuu;
+			rootPart %= jyosuu;
+			System.out.println("intPart: " + intPart + ", rootPart: " + rootPart);
+		}
+	}
+}
+*/
+
+// a+b√c の aとbを保持する。a: intPart, b: rootPart
+class Real implements Cloneable {
+	BigInteger intPart;
+	BigInteger rootPart;
+
+	Real(int ip, int rp) {
+		intPart = new BigInteger(ip);
+		rootPart = new BigInteger(rp);
+	}
+
+	// cloneableインタフェースの実装（Override）
+	@Override
+	public Real clone() {
+		Real ret = null;
+		try {
+			ret = (Real)super.clone();
+			ret.intPart = this.intPart.clone();	//
+			ret.rootPart = this.rootPart.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+}
+
+public class RoomRoof {
+
+	/*
+	 * 【処理概要】
+	 * 題より、P(n) = (2 + √3)^n * 1 で面積が求められる。
+	 *  したがって、言い換えれば、P(n)の整数部をA(n)、実数部√3の係数をB(n)とすると
+	 *    P(n) = A(n) + B(n)*√3　 で表現でき、2+√3をかけて展開すると、
+	 *     A(n) = 2*A(n-1) + 3*B(n-1)
+	 *     B(n) = A(n-1) + 2*B(n-1)
+	 *    で各係数を求められる。
+	 *    よって、　A(0) = 1, B(0) = 0　を初期値とする漸化式でA(n)とB(n)を求める。
+	 */
+/*	public static void calc(int cur, int n, Real ret) {
+		int ip = ret.intPart, rp = ret.rootPart;
+		ret.intPart = 2 * ip + 3 * rp;
+		ret.rootPart = ip + 2 * rp;
+		if (cur < n) calc(cur+1, n, ret);
+		//ret.reconst(); //
+	}
+*/
+
+	/*
+	 * 【処理概要】
+	 * 題より、P(n) = (2 + √3)^n * 1 で面積が求められる。
+	 *  したがって、言い換えれば、P(n)の整数部をA(n)、実数部√3の係数をB(n)とすると
+	 *    P(n) = A(n) + B(n)*√3　 で表現でき、2+√3をかけて展開すると、
+	 *     A(n) = 2*A(n-1) + 3*B(n-1)
+	 *     B(n) = A(n-1) + 2*B(n-1)
+	 *    で各係数を求められる。
+	 *    よって、　A(0) = 1, B(0) = 0　を初期値とする漸化式でA(n)とB(n)を求める。
+	 */
+/*	public static Real calc(int n) {
+		Real ret = new Real(1, 0); // A(0)=1, B(0)=0
+		int i;
+		int jyosuu = 1000000;
+		double ip, rp;
+
+		for (i=1 ; i<=n ;i++) {
+			ip = ret.intPart;
+			rp = ret.rootPart;
+			ret.intPart = 2 * ip + 3 * rp;
+			ret.rootPart = ip + 2 * rp;
+			System.out.println(i + ": intp, rp = " + ret.intPart + "," + ret.rootPart);
+			//ret.reconst(jyosuu);
+		}
+		return ret;
+	}
+*/
+	/*
+	 * 【処理概要】
+	 * 題より、P(n) = (2 + √3)^n * 1 で面積が求められる。
+	 *  したがって、言い換えれば、P(n)の整数部をA(n)、実数部√3の係数をB(n)とすると
+	 *    P(n) = A(n) + B(n)*√3　 で表現でき、2+√3をかけて展開すると、
+	 *     A(n) = 2*A(n-1) + 3*B(n-1)
+	 *     B(n) = A(n-1) + 2*B(n-1)
+	 *    で各係数を求められる。
+	 *    よって、　A(0) = 1, B(0) = 0　を初期値とする漸化式でA(n)とB(n)を求める。
+	 */
+	public static Real calc(int n) {
+		Real ret = new Real(1, 0); // A(0)=1, B(0)=0
+		Real tmp;
+		int i;
+		int jyosuu = 1000000;
+
+		for (i=1 ; i<=n ;i++) {
+			tmp = ret.clone();
+			tmp.intPart.mult1(2, 0);
+			tmp.rootPart.mult1(3, 0);
+
+			ret.rootPart.mult1(2, 0);
+			ret.rootPart.add(ret.intPart);
+			ret.intPart.set(tmp.intPart);
+			ret.intPart.add(tmp.rootPart);
+			ret.intPart.compaction();
+			ret.rootPart.compaction();
+//			System.out.print(i + ": "); ret.intPart.print(); System.out.print(","); ret.rootPart.println();
+		}
+		return ret;
+	}
+
+	public static int calcArea(int n) {
+		Real ret1, ret2; // A(0)=1, B(0)=0
+		if (n == 0) return 1;
+		ret1 = calc(n);
+
+		ret2 = ret1.clone();
+		ret2.rootPart.mult(17320508);
+		ret2.intPart.mult(10000000); // 桁をそろえる
+		ret2.intPart.add(ret2.rootPart);
+		ret2.intPart.println(7, ret2.intPart.keta.size()-1);
+		ret2.intPart.println();
+		//return (int)Math.floor(ret.intPart + ret.rootPart*Math.sqrt(3));
+
+		return 0;
+	}
+
+    public static void main(String[] args){
+	        BigDecimal s2_50 = sqrt(new BigDecimal(2), 50);
+	        System.out.println(s2_50);
+	        System.out.println(s2_50.multiply(s2_50));
+	    }
+
+	    public static BigDecimal sqrtBD(BigDecimal a, int scale){
+	        //とりあえずdoubleのsqrtを求める
+	        BigDecimal x = new BigDecimal(
+	                Math.sqrt(a.doubleValue()), MathContext.DECIMAL64);
+	        if(scale < 17) return x;
+
+	        BigDecimal b2 = new BigDecimal(2);
+	        for(int tempScale = 16; tempScale < scale; tempScale *= 2){
+	            //x = x - (x * x - a) / (2 * x);
+	            x = x.subtract(
+	                    x.multiply(x).subtract(a).divide(
+	                    x.multiply(b2), scale, BigDecimal.ROUND_HALF_EVEN));
+	        }
+	        return x;
+	    }
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int n;
+		String line;
+/*
+		BigInteger b = new BigInteger(345);
+		BigInteger c = new BigInteger(29);
+
+		b.print();
+		c.print();
+		b.mult(c);
+		b.compaction();
+		b.print();
+*/
+		while (cin.hasNext()) {
+			line = cin.nextLine();
+			n = Integer.parseInt(line);
+			calcArea(n);
+			//System.out.println(calcArea(n) % 1000000);
+		}
+		cin.close();
+	}
+
+}

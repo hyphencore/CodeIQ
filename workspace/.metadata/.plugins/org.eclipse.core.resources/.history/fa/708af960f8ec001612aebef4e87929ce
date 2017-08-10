@@ -1,0 +1,23 @@
+package gaikaRyougae;
+
+import java.util.Scanner;
+
+public class GaikaRyougae {
+	public static int getRyougaeMaisu(int money) {
+		int ret = 0;
+
+		return ret;
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int money;
+
+		while (cin.hasNext()) {
+			money = Integer.parseInt(cin.nextLine());
+			System.out.println(getRyougaeMaisu(money));
+		}
+		cin.close();
+	}
+
+}

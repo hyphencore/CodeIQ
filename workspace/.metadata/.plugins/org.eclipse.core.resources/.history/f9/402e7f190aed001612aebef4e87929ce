@@ -1,0 +1,113 @@
+package gaikaRyougae;
+
+import java.util.Scanner;
+
+class Money {
+	// 各貨幣の使用枚数をカウントする
+	int[] ammount = {10000, 5000, 2000, 1000, 500, 100, 50, 10, 5, 1};
+	int[] m = new int[ammount.length]; // 0: 10000, 1: 5000, 2: 2000, 3: 1000, 4: 500, 5: 100, 6: 50, 7: 10, 8: 5, 9: 1円
+	int[] mSave;
+	int ammountLength;
+	int syurui;
+	int syuruiSave;
+	int totalCount;
+	int totalCountSave;
+
+	Money() {
+		int i;
+		for (i=0 ; i<m.length ; i++) m[i] = 0;
+		syurui =0;
+		syuruiSave = 0;
+		totalCount = 0;
+		totalCountSave = Integer.MAX_VALUE;
+		ammountLength = ammount.length;
+	}
+
+	public void incCount(int index) {
+		m[index]++;
+		if (m[index] == 1) syurui++;
+		totalCount++;
+	}
+
+	public void decCount(int index) {
+		m[index]--;
+		if (m[index] == 0) syurui--;
+		totalCount--;
+	}
+
+	// save機能つき
+	public void save() {
+		mSave = m.clone();
+		syuruiSave = syurui;
+		totalCountSave = totalCount;
+	}
+
+	public int getSyurui() {
+		return syurui;
+	}
+
+	public int getSyuruiSave() {
+		return syuruiSave;
+	}
+
+	public int getTotalCount() {
+		return totalCount;
+	}
+
+	public int getTotalCountSave() {
+		return totalCountSave;
+	}
+
+	public int getAmmount(int index) {
+		return ammount[index];
+	}
+
+	public int getAmmountLength() {
+		return ammountLength;
+	}
+
+	// Saveよりも種類が多いか、種類が同じで枚数が少なければtrue
+	public boolean betterChange() {
+		if (syuruiSave < syurui) return true;
+		if ((syuruiSave == syurui) && (totalCountSave > totalCount)) return true;
+		return false;
+	}
+}
+
+class GaikaRyougae {
+	public static void getRyougaeMaisu1(Money m, int restMoney) {
+		int i;
+		if (restMoney == 0) {
+			if (m.betterChange()) {
+				m.save();
+				return;
+			}
+		} else {
+			for (i=0 ; i<m.getAmmountLength() ; i++) {
+				if (restMoney >= m.getAmmount(i)) {
+					m.incCount(i);
+					getRyougaeMaisu1(m, restMoney-m.getAmmount(i));
+					m.decCount(i);
+				}
+			}
+		}
+	}
+
+	public static int getRyougaeMaisu(int restMoney) {
+		Money m = new Money();
+		getRyougaeMaisu1(m, restMoney);
+		return m.getTotalCountSave();
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int rest;
+
+		while (cin.hasNext()) {
+			rest = Integer.parseInt(cin.nextLine());
+			System.out.println(getRyougaeMaisu(rest));
+		}
+		cin.close();
+	}
+
+}

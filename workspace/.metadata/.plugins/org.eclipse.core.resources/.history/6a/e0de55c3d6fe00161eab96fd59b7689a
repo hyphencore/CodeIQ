@@ -1,0 +1,24 @@
+package maruMaxArea;
+
+import java.util.*;
+
+public class MaruMaxArea {
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int n;
+		String line;
+		String[] mList, ret;
+		String[] bList;
+
+		while (cin.hasNext()) {
+			line = cin.nextLine();
+			ret = line.split(" ");
+			n = Integer.parseInt(ret[0]);
+			mList = ret[1].split(",");
+			bList = ret[2].split(",");
+		}
+		cin.close();
+	}
+
+}

@@ -1,0 +1,64 @@
+package bori;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class OneScore {
+	static final int SPARE = 1;
+	static final int STRIKE = 2;
+
+	int first;	 // 1投目スコア
+	int second; // 2投目スコア
+
+	OneScore() {
+		first = 0;
+		second = 0;
+	}
+
+	void setFirst(int first) {
+		this.first = first;
+	}
+
+	void setSecond(int second) {
+		this.second = second;
+	}
+
+	public int getFirstScore() {
+		return first;
+	}
+
+	public int getSecondScore() {
+		return first;
+	}
+}
+
+public class Bori {
+	public static int getMaxMinDiff(int strike, int spare) {
+		ArrayList<OneScore> game1 = new ArrayList<OneScore>();	// 最終は3投分を単独でfirstだけ埋める
+		int count = 0;
+
+		for (int i=0 ; i<12 ; i++) game1.add(new OneScore());	// スコアボードの初期化
+
+		/*
+		 * 最小値の生成
+		 */
+		while (strike > count) {
+			if (count <= 3) game1.get(12-3+count).setFirst(10);
+			else if (count <= 7) game1.get((count-3)*2).setFirst(10);
+			else game1.get((count-8)*2+1).setFirst(10);
+		}
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int strike, spare;
+
+		while (cin.hasNext()) {
+			strike = cin.nextInt();
+			spare = cin.nextInt();
+			System.out.println(getMaxMinDiff(strike, spare));
+		}
+		cin.close();
+	}
+
+}

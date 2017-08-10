@@ -1,0 +1,23 @@
+package tenji;
+import java.util.Scanner;
+
+public class TenjiBlock {
+
+}
+
+public class Tenji {
+
+	public static void main(String[] args) {
+		// TODO 自動生成されたメソッド・スタブ
+		Scanner cin = new Scanner(System.in);
+		String line;
+		int
+		while (cin.hasNext()) {
+			line = cin.nextLine();
+
+		}
+
+
+	}
+
+}

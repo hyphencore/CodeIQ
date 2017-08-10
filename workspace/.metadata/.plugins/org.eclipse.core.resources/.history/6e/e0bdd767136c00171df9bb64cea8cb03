@@ -1,0 +1,52 @@
+package bori;
+
+import java.util.Scanner;
+import java.util.ArrayList;
+
+class OneScore {
+	static final int SPARE = 1;
+	static final int STRIKE = 2;
+
+	int first;	 // 1投目スコア
+	int second; // 2投目スコア
+
+	OneScore() {
+		first = 0;
+		second = 0;
+	}
+
+	void setFirst(int first) {
+		this.first = first;
+	}
+
+	void setSecond(int second) {
+		this.second = second;
+	}
+
+	public int getFirstScore() {
+		return first;
+	}
+
+	public int getSecondScore() {
+		return first;
+	}
+}
+
+public class Bori {
+	public static int getMaxMinDiff(int strike, int spare) {
+		ArrayList<OneScore> 1game = new ArrayList<OneScore>();
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int strike, spare;
+
+		while (cin.hasNext()) {
+			strike = cin.nextInt();
+			spare = cin.nextInt();
+			System.out.println(getMaxMinDiff(strike, spare));
+		}
+		cin.close();
+	}
+
+}

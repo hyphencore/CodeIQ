@@ -1,0 +1,98 @@
+package rev3;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Rev3 {
+
+	public static int calcTop(int n, int[] baseList) {
+		boolean[] usedList;
+		int[] tmpList;
+
+		usedList = new boolean[n*(n+1)/2*n*(n+1)/2];
+		for (int i=0 ; i<n*n ; i++) {
+			usedList[i] = false;
+		}
+
+		tmpList = new int[n];
+		for (int i=0 ; i<n ; i++) {
+			tmpList[i] = baseList[i];
+			usedList[baseList[i]] = true;
+		}
+
+		do {
+			for (int i=0 ; i<n-1 ; i++) {
+				tmpList[i] += tmpList[i+1];
+				if (usedList[tmpList[i]]) return -1;
+				usedList[tmpList[i]] = true;
+			}
+			n--;
+		} while (n>0);
+
+		return tmpList[0];
+	}
+
+	public static void initBase(int n, int[] baseList) {
+		for (int i=0 ; i<n ; i++) {
+			baseList[i] = i+1;
+		}
+	}
+
+	public static boolean setNextBaseList(int n, int[] baseList) {
+		int swap, index;
+		boolean ret = false;
+		ArrayList<Integer> unableList = new ArrayList<Integer>();
+
+		for (int i=n-1 ; i>=1 ; i--) {
+			if (baseList[i-1] < baseList[i]) {
+				unableList.add(baseList[i]); // この時点でunableListは昇順に並んでいるためソート不要
+				index = 0;
+				for (int j=0 ; j<unableList.size() ; j++) { // 入れ替え対象より大きい直近の数字を探す
+					if (unableList.get(j) > baseList[i-1]) {
+						index = j;
+						break; // 必ずここに到達する
+					}
+				}
+				swap = unableList.get(index);
+				unableList.set(index, baseList[i-1]);
+				baseList[i-1] = swap;
+				for (int j=0 ; j<unableList.size() ; j++) {
+					baseList[i+j] = unableList.get(j);
+				}
+				ret = true;
+				break;
+			} else {
+				unableList.add(baseList[i]);
+			}
+		}
+		return ret;
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int n, ret, min;
+		int[] baseList;
+
+		while (cin.hasNext()) {
+			n = cin.nextInt();
+			baseList = new int[n];
+			initBase(n, baseList);
+			min = 0;
+			do {
+				ret = calcTop(n, baseList);
+				if (ret > 0 && min > ret) min = ret;
+				System.out.print("base: ");
+				for (int i=0 ; i<n ; i++) {
+					System.out.print(baseList[i] + ",");
+				}
+				System.out.println("--> " + ret);
+				if (ret > 0) {
+					System.out.println("found!!: " + ret);
+					break;
+				}
+			} while (setNextBaseList(n, baseList));
+		}
+		cin.close();
+	}
+
+}

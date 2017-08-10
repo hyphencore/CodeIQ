@@ -1,0 +1,18 @@
+package bori;
+
+import java.util.*;
+
+public class Bori {
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int strike, spare;
+
+		while (cin.hasNext()) {
+			strike = cin.nextInt();
+			spare = cin.nextInt();
+		}
+		cin.close();
+	}
+
+}

@@ -1,0 +1,17 @@
+package gaikaRyougae;
+
+import java.util.Scanner;
+
+public class GaikaRyougae {
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int money;
+
+		while (cin.hasNext()) {
+			money = Integer.parseInt(cin.nextLine());
+		}
+		cin.close();
+	}
+
+}

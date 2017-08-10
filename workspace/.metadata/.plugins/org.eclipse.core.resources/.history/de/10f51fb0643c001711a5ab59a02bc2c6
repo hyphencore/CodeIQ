@@ -1,0 +1,53 @@
+package rev3;
+
+import java.util.Scanner;
+
+public class Rev3 {
+
+	public static int calcTop(int n, int[] baseList) {
+		boolean[] usedList;
+		int[] tmpList;
+
+		usedList = new boolean[n*n];
+		for (int i=0 ; i<n*n ; i++) {
+			usedList[i] = false;
+		}
+
+		tmpList = new int[n];
+		for (int i=0 ; i<n ; i++) {
+			tmpList[i] = baseList[i];
+		}
+
+		do {
+			for (int i=0 ; i<n-1 ; i++) {
+				tmpList[i] += tmpList[i+1];
+			}
+			n--;
+		} while (n>0);
+
+		return tmpList[0];
+	}
+
+	public static void initBase(int n, int[] baseList) {
+		for (int i=0 ; i<n ; i++) {
+			baseList[i] = i+1;
+		}
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int n;
+		int[] baseList;
+
+		while (cin.hasNext()) {
+			n = cin.nextInt();
+			baseList = new int[n];
+			initBase(n, baseList);
+			do {
+
+			} while (true);
+		}
+		cin.close();
+	}
+
+}

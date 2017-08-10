@@ -1,0 +1,16 @@
+package gaikaRyougae;
+
+import java.util.*;
+
+public class GaikaRyougae {
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+
+		while (cin.hasNext()) {
+
+		}
+		cin.close();
+	}
+
+}

@@ -1,0 +1,20 @@
+package kuriagari;
+
+import java.util.Scanner;
+
+public class Kuriagari {
+	public static void main(String[] args) {
+		// TODO 自動生成されたメソッド・スタブ
+		Scanner cin = new Scanner(System.in);
+		String line;
+		String[] ret;
+		int n, c;
+		for (;cin.hasNext();) {
+			// 上からのProjection
+			line = cin.nextLine();
+			ret = line.split(" ");
+			n = Integer.parseInt(ret[0]);
+			c = Integer.parseInt(ret[1]);
+		}
+	}
+}

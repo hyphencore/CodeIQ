@@ -1,0 +1,68 @@
+package gaikaRyougae;
+
+import java.util.Scanner;
+
+class Money {
+	// 各貨幣の使用枚数をカウントする
+	int[] m = new int[9]; // 0: 10000, 1: 5000, 2: 1000, 3: 500, 4: 100, 5: 50, 6: 10, 7: 5, 8: 1円
+	int[] mSave;
+	static int M10000 = 0;
+	static int M5000 = 1;
+	static int M1000 = 2;
+	static int M500 = 3;
+	static int M100 = 4;
+	static int M50 = 5;
+	static int M10 = 6;
+	static int M5 = 7;
+	static int M1 = 8;
+	int syurui;
+
+	Money() {
+		int i;
+		for (i=0 ; i<m.length ; i++) m[i] = 0;
+		syurui =0;
+	}
+
+	public void incCount(int index) {
+		m[index]++;
+		if (m[index] == 1) syurui++;
+	}
+
+	public void decCount(int index) {
+		m[index]--;
+		if (m[index] == 0) syurui--;
+	}
+
+	// save機能つき
+	public void save() {
+		mSave = m.clone();
+	}
+
+	public int getSyurui() {
+		return syurui;
+	}
+}
+
+class GaikaRyougae {
+	public static int getRyougaeMaisu(Money m, int restMoney) {
+		int ret = 0;
+
+		// 全て両替完了
+		if (money == 0) {
+			if (betterChange())
+		}
+		return ret;
+	}
+
+	public static void main(String[] args) {
+		Scanner cin = new Scanner(System.in);
+		int rest;
+
+		while (cin.hasNext()) {
+			rest = Integer.parseInt(cin.nextLine());
+			System.out.println(getRyougaeMaisu(rest));
+		}
+		cin.close();
+	}
+
+}
