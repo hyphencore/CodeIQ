@@ -21,7 +21,7 @@ public class B2a {
 				}
 			}
 		}
-		cin.close();
+		cin.close();;
 	}
 
 }
